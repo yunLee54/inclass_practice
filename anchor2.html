@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recycling Project Mission</title>
+<style>
+  :root{
+    --green:#2fb67c; --green-d:#1e9a65; --green-l:#e7f8f0;
+    --sky:#e6f3fc; --sky-b:#bfe0f5; --sun:#fff3c4;
+    --ink:#1f2d2a; --muted:#5d756d; --line:#d9ece4;
+    --red:#e0574d; --red-l:#fdeceb; --amber-l:#fff6dd; --amber-b:#f0cf6a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:-apple-system,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Roboto,Arial,sans-serif;
+    color:var(--ink);
+    background:linear-gradient(180deg,#f2fbf7 0%,#ffffff 60%);
+    min-height:100vh; font-size:18px; line-height:1.5;
+  }
+  #app{max-width:760px;margin:0 auto;padding:16px 16px 48px}
+  button{font-family:inherit}
+  :focus-visible{outline:3px solid #7fd4ae;outline-offset:2px}
+
+  /* Buttons */
+  .btn{
+    min-height:52px;padding:0 22px;border:2px solid var(--green);border-radius:14px;
+    background:var(--green);color:#fff;font-size:18px;font-weight:700;cursor:pointer;
+    transition:transform .08s ease, background .15s ease;
+  }
+  .btn:hover{background:var(--green-d);border-color:var(--green-d)}
+  .btn:active{transform:scale(.98)}
+  .btn.ghost{background:#fff;color:var(--green-d)}
+  .btn.ghost:hover{background:var(--green-l)}
+  .btn.small{min-height:48px;font-size:16px;padding:0 16px}
+  .btn.big{min-height:58px;font-size:20px;padding:0 34px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+
+  /* Start screen */
+  .hero{text-align:center;padding:20px 8px 8px}
+  .hero-emoji{font-size:56px;line-height:1}
+  .hero h1{margin:8px 0 4px;font-size:30px;letter-spacing:-.3px;color:var(--green-d)}
+  .hero p{margin:0;color:var(--muted);font-size:17px}
+  .pill{display:inline-block;margin-top:12px;background:var(--sun);color:#7a5b00;border-radius:999px;padding:4px 14px;font-size:15px;font-weight:700}
+  h2.sec{font-size:19px;margin:22px 4px 10px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+  h2.sec span{font-size:15px;color:var(--muted);font-weight:500}
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(min-width:600px){.cards{grid-template-columns:repeat(3,1fr)}}
+  .fc{
+    position:relative;min-height:168px;background:#fff;border:2px solid var(--line);border-radius:18px;
+    padding:16px 12px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;
+    text-align:center;box-shadow:0 2px 8px rgba(47,182,124,.08);animation:pop .22s ease;
+  }
+  .fc:hover{border-color:var(--green)}
+  .fc .em{font-size:34px}
+  .fc .ex-name{font-size:21px;font-weight:800;margin-top:4px}
+  .fc .tap{font-size:13px;color:var(--muted);margin-top:6px}
+  .fc.flipped{background:var(--sky);border-color:var(--sky-b);align-items:flex-start;text-align:left;justify-content:flex-start}
+  .fc .mean{font-size:19px;font-weight:800;color:var(--green-d);padding-right:36px}
+  .fc .exs{font-size:14.5px;margin-top:8px;line-height:1.45}
+  .fc .exk{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.4}
+  .spk{
+    position:absolute;top:8px;right:8px;width:40px;height:40px;border-radius:50%;border:0;
+    background:var(--green-l);cursor:pointer;font-size:18px;
+  }
+  .spk:hover{background:#cdeedd}
+  .no-tts .tts{display:none !important}
+  .center{text-align:center;margin-top:22px}
+
+  /* Mission screen */
+  .top{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 10px}
+  .brand{font-weight:800;color:var(--green-d)}
+  .score{background:var(--sun);color:#7a5b00;font-weight:800;border-radius:999px;padding:4px 14px;font-size:16px}
+  .prog{margin-bottom:14px}
+  .prog-label{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);font-weight:600;margin-bottom:6px}
+  .bar{height:12px;background:#e3f1ea;border-radius:999px;overflow:hidden}
+  .fill{height:100%;background:linear-gradient(90deg,#5fd3a0,var(--green));border-radius:999px;transition:width .5s ease}
+  .scene{display:flex;gap:14px;align-items:center;background:var(--sky);border:2px solid var(--sky-b);border-radius:18px;padding:14px 16px;margin-bottom:14px}
+  .scene .emoji{font-size:42px;line-height:1}
+  .mtitle{font-weight:800;font-size:17px}
+  .scene-en{font-size:16px;margin-top:2px}
+  .scene-ko{font-size:14px;color:var(--muted);margin-top:2px}
+  .card{background:#fff;border:2px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 4px 14px rgba(47,182,124,.08)}
+  .step{display:inline-block;background:var(--green-l);color:var(--green-d);font-weight:800;font-size:14px;border-radius:999px;padding:3px 12px;margin-bottom:12px}
+  .sentence{font-size:22px;font-weight:600;line-height:1.65;margin:4px 0 16px}
+  .blank{display:inline-block;min-width:96px;border-bottom:3px dashed var(--green);vertical-align:baseline}
+  .filled{color:var(--green-d);background:var(--green-l);border-radius:8px;padding:0 6px;font-weight:800}
+  .opts{display:grid;gap:10px}
+  .opt{
+    width:100%;text-align:left;min-height:56px;border:2px solid var(--line);background:#fff;border-radius:14px;
+    padding:12px 16px;font-size:19px;font-weight:700;cursor:pointer;color:var(--ink);transition:border-color .15s, background .15s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--green);background:var(--green-l)}
+  .opt:disabled{cursor:default;color:var(--ink)}
+  .opt.correct{border-color:var(--green);background:var(--green-l)}
+  .opt.wrong{border-color:var(--red);background:var(--red-l);text-decoration:line-through;text-decoration-color:rgba(224,87,77,.6)}
+
+  .zone{
+    min-height:76px;border:2px dashed #b9dccd;border-radius:14px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;
+    align-items:center;background:#fbfffd;margin:6px 0 12px;
+  }
+  .zone .ph{color:#8fa9a0;font-size:15px}
+  .zone.ok{border-style:solid;border-color:var(--green);background:var(--green-l)}
+  .zone.no{border-style:solid;border-color:var(--amber-b);background:var(--amber-l)}
+  .zone.shake{animation:shake .4s ease}
+  .pool{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;min-height:52px}
+  .chip{
+    min-height:48px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:#fff;
+    font-size:18px;font-weight:700;cursor:pointer;color:var(--ink);box-shadow:0 2px 0 var(--line);
+  }
+  .chip:hover:not(:disabled){border-color:var(--green)}
+  .chip.in{background:#fff;border-color:var(--green)}
+  .chip:disabled{cursor:default}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+
+  .hint{margin-top:12px;background:var(--sun);border-radius:12px;padding:10px 14px;font-size:16px}
+  .hintwrap{margin-top:12px}
+  .fb{margin-top:14px;padding:14px 16px;border-radius:14px;font-size:17px}
+  .fb.ok{background:var(--green-l);border:2px solid var(--green)}
+  .fb.no{background:var(--amber-l);border:2px solid var(--amber-b)}
+  .fb.try{background:var(--red-l);border:2px solid #f2b4ae}
+  .fb-head{font-weight:800}
+  .pts{color:var(--green-d)}
+  .fb-sent{margin-top:6px;font-size:19px;font-weight:600}
+  .fb-ko{margin-top:4px;color:var(--muted);font-size:15px}
+  .fb-why{margin-top:8px;font-size:16px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:16px}
+
+  /* Result */
+  .res{text-align:center}
+  .stars{font-size:52px;letter-spacing:6px;color:#f5b301;line-height:1.1}
+  .stars .off{color:#d9e6e0}
+  .big-score{font-size:34px;font-weight:800;color:var(--green-d);margin-top:6px}
+  .big-score small{font-size:18px;color:var(--muted);font-weight:600}
+  .badge{display:inline-flex;align-items:center;gap:10px;background:var(--green-l);border:2px solid var(--green);border-radius:999px;padding:8px 20px;margin-top:12px;font-weight:800}
+  .badge .b-em{font-size:28px}
+  .msg{color:var(--muted);margin-top:12px}
+  .rv-title{text-align:left;font-size:19px;font-weight:800;margin:26px 2px 10px}
+  .rv{text-align:left;background:#fff;border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+  .rv-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .rv-top b{font-size:19px}
+  .rv-top span{color:var(--green-d);font-weight:700}
+  .spk-inline{width:38px;height:38px;border-radius:50%;border:0;background:var(--green-l);cursor:pointer;font-size:17px}
+  .rv-ex{margin-top:6px;font-size:16px}
+  .rv-ko{margin-top:2px;font-size:14px;color:var(--muted)}
+  .perfect{background:var(--green-l);border-radius:14px;padding:14px;text-align:left}
+
+  @keyframes pop{from{transform:scale(.96);opacity:.6}to{transform:scale(1);opacity:1}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  @media(max-width:420px){
+    body{font-size:17px}
+    .sentence{font-size:20px}
+    .hero h1{font-size:26px}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================================================
+   DATA  (문항을 수정하려면 이 배열만 고치면 됩니다)
+   ============================================================ */
+const MISSIONS = [
+  {
+    key:"find out", emoji:"🔍", title:"The Waste Survey", titleKo:"쓰레기 조사",
+    scene:"Your team starts the project. First, you need information about the school's waste.",
+    sceneKo:"프로젝트 시작! 먼저 학교 쓰레기에 대한 정보가 필요해요.",
+    meaning:"알아내다",
+    example:"A group of students wanted to find out how much waste their school produced each day.",
+    exampleKo:"한 무리의 학생들은 학교가 하루에 얼마나 많은 쓰레기를 만드는지 알아내고 싶었다.",
+    a:{
+      sentence:"The students wanted to ___ how much waste their school made each day.",
+      ko:"학생들은 학교가 하루에 얼마나 많은 쓰레기를 만드는지 알아내고 싶었다.",
+      options:["come up with","find out","sort out"], answer:"find out",
+      why:"find out = (정보를) 알아내다. 몰랐던 사실을 알게 될 때 써요. come up with는 '아이디어를 생각해 내다'예요."
+    },
+    b:{
+      chunks:["The team","wanted to","find out","how much waste","the school produced."], distractors:[], hi:2,
+      ko:"팀은 학교가 만들어 내는 쓰레기의 양을 알아내고 싶었다.",
+      why:"wanted to 뒤에는 동사 원형이 와요 → find out. 알고 싶은 내용(how much waste ...)이 뒤에 이어져요."
+    }
+  },
+  {
+    key:"set up", emoji:"📦", title:"The Recycling Boxes", titleKo:"분리수거함 설치",
+    scene:"Now your team needs a place for paper and plastic.",
+    sceneKo:"이제 종이와 플라스틱을 버릴 장소가 필요해요.",
+    meaning:"설치하다, 마련하다",
+    example:"They decided to set up recycling boxes for paper and plastic.",
+    exampleKo:"그들은 종이와 플라스틱용 분리수거함을 설치하기로 했다.",
+    a:{
+      sentence:"First, the team will ___ one box for paper and one box for plastic in the hallway.",
+      ko:"먼저 팀은 복도에 종이용 상자 하나와 플라스틱용 상자 하나를 설치할 것이다.",
+      options:["carry out","find out","set up"], answer:"set up",
+      why:"set up = 설치하다, 마련하다. 처음으로 무언가를 준비해 놓을 때 써요. carry out은 계획을 '실행하다'예요."
+    },
+    b:{
+      chunks:["They","set up","two boxes","for paper","and plastic."], distractors:[], hi:1,
+      ko:"그들은 종이와 플라스틱용으로 상자 두 개를 설치했다.",
+      why:"set up은 '설치하다/마련하다'. 과거형도 set up 그대로예요 (set – set – set)."
+    }
+  },
+  {
+    key:"sort out", emoji:"🧴", title:"Sorting Time", titleKo:"분리배출 요청",
+    scene:"Your classmates mix their waste. Ask them to separate it.",
+    sceneKo:"친구들이 쓰레기를 섞어서 버리고 있어요. 분리해 달라고 부탁해요.",
+    meaning:"분류하다, 정리하다",
+    example:"They also asked classmates to sort out their waste carefully.",
+    exampleKo:"그들은 또한 반 친구들에게 쓰레기를 꼼꼼히 분류해 달라고 부탁했다.",
+    a:{
+      sentence:"Mina asked her friends to ___ their waste into paper and plastic.",
+      ko:"미나는 친구들에게 쓰레기를 종이와 플라스틱으로 분류해 달라고 부탁했다.",
+      options:["set up","pay attention to","sort out"], answer:"sort out",
+      why:"sort out = 분류하다, 정리하다. 섞여 있는 것을 종류별로 나눌 때 써요."
+    },
+    b:{
+      chunks:["Please","sort out","your waste","before you","throw it away."], distractors:[], hi:1,
+      ko:"버리기 전에 쓰레기를 분류해 주세요.",
+      why:"sort out = 분류하다. 'Please + 동사원형'으로 부탁하는 문장을 만들어요."
+    }
+  },
+  {
+    key:"pay attention to", emoji:"🪧", title:"Nobody Reads the Signs", titleKo:"표지판을 안 봐요",
+    scene:"The signs are on the wall, but many students do not look at them.",
+    sceneKo:"표지판이 벽에 붙어 있지만 많은 학생들이 보지 않아요.",
+    meaning:"~에 주의를 기울이다",
+    example:"Many students did not pay attention to the recycling signs.",
+    exampleKo:"많은 학생들이 분리배출 표지판에 주의를 기울이지 않았다.",
+    a:{
+      sentence:"Students should ___ the recycling signs on the wall.",
+      ko:"학생들은 벽에 있는 분리배출 표지판에 주의를 기울여야 한다.",
+      options:["find out","sort out","pay attention to"], answer:"pay attention to",
+      why:"pay attention to = ~에 주의를 기울이다. 뒤에 명사(the recycling signs)가 와요."
+    },
+    b:{
+      chunks:["At first,","many students","did not","pay attention to","the signs."], distractors:["paid attention to"], hi:3,
+      ko:"처음에는 많은 학생들이 표지판에 주의를 기울이지 않았다.",
+      why:"did not 뒤에는 동사 원형이 와요 → pay attention to. 뒤에는 명사(the signs)가 이어져요."
+    }
+  },
+  {
+    key:"come up with", emoji:"💡", title:"The Points Game", titleKo:"포인트 게임 아이디어",
+    scene:"The team needs an idea to make recycling fun.",
+    sceneKo:"재활용을 재미있게 만들 아이디어가 필요해요.",
+    meaning:"(아이디어를) 생각해 내다",
+    example:"The team came up with a simple points game.",
+    exampleKo:"팀은 간단한 포인트 게임을 생각해 냈다.",
+    a:{
+      sentence:"The team ___ a good idea: a simple points game.",
+      ko:"팀은 좋은 아이디어, 즉 간단한 포인트 게임을 생각해 냈다.",
+      options:["found out","sorted out","came up with"], answer:"came up with",
+      why:"come up with = (아이디어를) 생각해 내다. 과거 이야기라서 came up with로 써요."
+    },
+    b:{
+      chunks:["After that,","the team","came up with","a simple points game","to help the project."], distractors:["come up with"], hi:2,
+      ko:"그 후 팀은 프로젝트를 돕기 위해 간단한 포인트 게임을 생각해 냈다.",
+      why:"came up with는 come up with의 과거형이에요. 과거 이야기에서는 came을 써요."
+    }
+  },
+  {
+    key:"carry out", emoji:"🏆", title:"The 30-Day Plan", titleKo:"한 달 실행",
+    scene:"More students join the project. Can the team keep it going?",
+    sceneKo:"참여하는 학생이 늘었어요. 프로젝트를 끝까지 이어갈 수 있을까요?",
+    meaning:"실행하다, 수행하다",
+    example:"The team was able to carry out the plan for an entire month.",
+    exampleKo:"팀은 한 달 내내 계획을 실행할 수 있었다.",
+    a:{
+      sentence:"Thanks to many helpers, the team could ___ the plan for a whole month.",
+      ko:"많은 도우미 덕분에 팀은 한 달 내내 계획을 실행할 수 있었다.",
+      options:["carry out","find out","set up"], answer:"carry out",
+      why:"carry out = 실행하다. 계획을 실제로 해 낼 때 써요. set up은 '처음 준비해 놓다'예요."
+    },
+    b:{
+      chunks:["In the end,","the students","carried out","their plan","for a month."], distractors:["carry out","set up"], hi:2,
+      ko:"결국 학생들은 한 달 동안 계획을 실행했다.",
+      why:"carried out은 carry out의 과거형이에요. 이미 끝난 일을 말하므로 과거형이 필요해요."
+    }
+  }
+];
+
+const TOTAL_STEPS = MISSIONS.length * 2;   // 미션 6개 × 2단계
+const MAX_SCORE = TOTAL_STEPS * 10;        // 120점
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let S;
+function initState(){
+  S = { screen:'start', m:0, stage:'A', score:0, done:0,
+        flipped:new Set(), missed:new Set(), cur:null };
+}
+
+function shuffle(a){
+  a = a.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function pts(attempt, hint){
+  if(attempt===1) return hint ? 5 : 10;
+  return hint ? 3 : 5;
+}
+
+function startStage(){
+  const M = MISSIONS[S.m];
+  S.cur = { attempts:0, hint:false, resolved:false, ok:false, pts:0,
+            wrong:[], fb:null, shake:false, speakText:"" };
+  if(S.stage==='A'){
+    S.cur.order = shuffle(M.a.options.map((_,i)=>i));
+  } else {
+    const n = M.b.chunks.length;
+    const total = n + M.b.distractors.length;
+    let ids = Array.from({length:total},(_,i)=>i), tries = 0;
+    do { ids = shuffle(ids); tries++; }
+    while(tries<10 && ids.filter(i=>i<n).every((v,k)=>v===k));
+    S.cur.pool = ids;
+    S.cur.ans = [];
+  }
+}
+
+/* ============================================================
+   SPEECH (브라우저 내장 음성, 없으면 버튼 숨김)
+   ============================================================ */
+function speak(text){
+  try{
+    if(!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US'; u.rate = 0.9;
+    const v = window.speechSynthesis.getVoices().find(v=>/^en/i.test(v.lang));
+    if(v) u.voice = v;
+    window.speechSynthesis.speak(u);
+  }catch(e){}
+}
+function updateTts(){
+  let ok = ('speechSynthesis' in window);
+  if(ok){
+    const vs = window.speechSynthesis.getVoices();
+    if(vs.length>0 && !vs.some(v=>/^en/i.test(v.lang))) ok = false;
+  }
+  document.body.classList.toggle('no-tts', !ok);
+}
+function speakCard(e,i,mode){
+  e.stopPropagation();
+  const M = MISSIONS[i];
+  speak(mode==='ex' ? M.example : M.key);
+}
+function speakIdx(i){ speak(MISSIONS[i].example); }
+function speakSentence(){ if(S.cur) speak(S.cur.speakText); }
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+function flipCard(i){
+  if(S.flipped.has(i)) S.flipped.delete(i); else S.flipped.add(i);
+  render();
+}
+function startMissions(){
+  S.screen='mission'; S.m=0; S.stage='A'; S.score=0; S.done=0; S.missed=new Set();
+  startStage(); render(); window.scrollTo(0,0);
+}
+function useHint(){
+  if(S.cur && !S.cur.resolved){ S.cur.hint = true; render(); }
+}
+function finish(ok){
+  const c = S.cur, M = MISSIONS[S.m];
+  c.resolved = true; c.ok = ok; c.fb = null; c.shake = false;
+  if(ok){ c.pts = pts(c.attempts, c.hint); S.score += c.pts; }
+  else { c.pts = 0; }
+  S.done++;
+  c.speakText = (S.stage==='A')
+    ? M.a.sentence.replace('___', M.a.answer)
+    : M.b.chunks.join(' ');
+}
+
+/* Stage A */
+function pickA(i){
+  const c = S.cur, M = MISSIONS[S.m];
+  if(c.resolved || c.wrong.includes(i)) return;
+  c.attempts++;
+  if(M.a.options[i]===M.a.answer){
+    finish(true);
+  } else {
+    c.wrong.push(i);
+    if(c.attempts===1){
+      S.missed.add(S.m);
+      c.fb = '앗, 아쉬워요! 다시 한 번 골라 보세요. 💪';
+    } else {
+      finish(false);
+    }
+  }
+  render();
+}
+
+/* Stage B */
+function tapPool(id){
+  const c = S.cur; if(c.resolved) return;
+  c.shake = false; c.fb = null;
+  c.pool = c.pool.filter(x=>x!==id); c.ans.push(id);
+  render();
+}
+function tapAns(id){
+  const c = S.cur; if(c.resolved) return;
+  c.shake = false; c.fb = null;
+  c.ans = c.ans.filter(x=>x!==id); c.pool.push(id);
+  render();
+}
+function resetB(){
+  const c = S.cur; if(c.resolved) return;
+  c.shake = false; c.fb = null;
+  c.pool = c.pool.concat(c.ans); c.ans = [];
+  render();
+}
+function checkB(){
+  const c = S.cur, M = MISSIONS[S.m], n = M.b.chunks.length;
+  if(c.resolved || c.ans.length!==n) return;
+  c.attempts++;
+  const ok = c.ans.every((id,k)=>id===k);
+  if(ok){
+    finish(true);
+  } else if(c.attempts===1){
+    S.missed.add(S.m);
+    c.shake = true;
+    c.fb = '순서가 조금 달라요. 뜻을 생각하며 다시 맞춰 보세요! 🔄';
+  } else {
+    const total = n + M.b.distractors.length;
+    c.ans = Array.from({length:n},(_,i)=>i);
+    c.pool = Array.from({length:total-n},(_,i)=>n+i);
+    finish(false);
+  }
+  render();
+}
+
+function next(){
+  if(S.stage==='A'){
+    S.stage = 'B'; startStage();
+  } else if(S.m < MISSIONS.length-1){
+    S.m++; S.stage = 'A'; startStage();
+  } else {
+    S.screen = 'result'; S.cur = null;
+  }
+  render(); window.scrollTo(0,0);
+}
+function restart(){ initState(); render(); window.scrollTo(0,0); }
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  const app = document.getElementById('app');
+  if(S.screen==='start') app.innerHTML = renderStart();
+  else if(S.screen==='mission') app.innerHTML = renderMission();
+  else app.innerHTML = renderResult();
+}
+
+function renderStart(){
+  const cards = MISSIONS.map((M,i)=>{
+    const f = S.flipped.has(i);
+    const inner = f
+      ? `<button class="spk tts" aria-label="예문 듣기" onclick="speakCard(event,${i},'ex')">🔊</button>
+         <div class="mean">${M.meaning}</div>
+         <div class="exs">${M.example}</div>
+         <div class="exk">${M.exampleKo}</div>`
+      : `<button class="spk tts" aria-label="표현 듣기" onclick="speakCard(event,${i},'key')">🔊</button>
+         <div class="em">${M.emoji}</div>
+         <div class="ex-name">${M.key}</div>
+         <div class="tap">눌러서 뜻 보기</div>`;
+    return `<div class="fc ${f?'flipped':''}" role="button" tabindex="0" aria-pressed="${f}"
+              onclick="flipCard(${i})"
+              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();flipCard(${i})}">${inner}</div>`;
+  }).join('');
+  return `
+    <section class="hero">
+      <div class="hero-emoji">♻️</div>
+      <h1>Recycling Project Mission</h1>
+      <p>우리 학교 재활용 프로젝트 팀의 일원이 되어 6개의 미션을 해결해 보세요!</p>
+      <span class="pill">⏱ 약 10분 · 미션 6개</span>
+    </section>
+    <h2 class="sec">오늘의 표현 6개 <span>카드를 눌러 뜻과 예문을 확인해요 (${S.flipped.size}/6)</span></h2>
+    <div class="cards">${cards}</div>
+    <div class="center"><button class="btn big" onclick="startMissions()">미션 시작 🚀</button></div>`;
+}
+
+function renderMission(){
+  const M = MISSIONS[S.m], c = S.cur;
+  const day = Math.max(1, Math.round(S.done/TOTAL_STEPS*30));
+  const pct = Math.round(S.done/TOTAL_STEPS*100);
+  const stageLabel = S.stage==='A' ? 'STEP 1 · 알맞은 표현 고르기' : 'STEP 2 · 문장 만들기';
+  const scene = S.stage==='A' ? `
+    <div class="scene">
+      <div class="emoji">${M.emoji}</div>
+      <div>
+        <div class="mtitle">Mission ${S.m+1} · ${M.title} <span style="font-weight:500;color:var(--muted)">(${M.titleKo})</span></div>
+        <div class="scene-en">${M.scene}</div>
+        <div class="scene-ko">${M.sceneKo}</div>
+      </div>
+    </div>` : '';
+  return `
+    <div class="top"><div class="brand">♻️ Recycling Mission</div><div class="score">⭐ ${S.score}점</div></div>
+    <div class="prog">
+      <div class="prog-label"><span>Day ${day} / 30</span><span>미션 ${S.m+1} / ${MISSIONS.length}</span></div>
+      <div class="bar"><div class="fill" style="width:${pct}%"></div></div>
+    </div>
+    ${scene}
+    <section class="card">
+      <div class="step">${stageLabel}</div>
+      ${S.stage==='A' ? renderA(M,c) : renderB(M,c)}
+      ${tail(M,c)}
+    </section>`;
+}
+
+function renderA(M,c){
+  const filled = c.resolved ? `<span class="filled">${M.a.answer}</span>` : '<span class="blank"></span>';
+  const sentence = M.a.sentence.replace('___', filled);
+  const opts = c.order.map(i=>{
+    const o = M.a.options[i];
+    let cls = 'opt';
+    if(c.resolved && o===M.a.answer) cls += ' correct';
+    else if(c.wrong.includes(i)) cls += ' wrong';
+    const dis = c.resolved || c.wrong.includes(i);
+    return `<button class="${cls}" ${dis?'disabled':''} onclick="pickA(${i})">${o}</button>`;
+  }).join('');
+  return `<div class="sentence">${sentence}</div><div class="opts">${opts}</div>`;
+}
+
+function renderB(M,c){
+  const all = M.b.chunks.concat(M.b.distractors);
+  const n = M.b.chunks.length;
+  const chip = (id,kind)=>
+    `<button class="chip ${kind}" ${c.resolved?'disabled':''} onclick="${kind==='in'?'tapAns':'tapPool'}(${id})">${all[id]}</button>`;
+  let zoneCls = 'zone';
+  if(c.resolved) zoneCls += c.ok ? ' ok' : ' no';
+  if(c.shake) zoneCls += ' shake';
+  const zone = c.ans.length
+    ? c.ans.map(id=>chip(id,'in')).join('')
+    : '<span class="ph">조각을 눌러 순서대로 놓아 보세요</span>';
+  const pool = c.pool.map(id=>chip(id,'pool')).join('');
+  const controls = c.resolved ? '' : `
+    <div class="row">
+      <button class="btn" ${c.ans.length!==n?'disabled':''} onclick="checkB()">확인 ✔</button>
+      <button class="btn ghost" ${c.ans.length===0?'disabled':''} onclick="resetB()">지우기 ↺</button>
+    </div>`;
+  return `
+    <div style="font-weight:700;margin-bottom:4px">알맞은 순서로 문장을 완성해 보세요.</div>
+    <div class="${zoneCls}" aria-label="답안 영역">${zone}</div>
+    <div class="pool" aria-label="문장 조각">${pool}</div>
+    ${controls}`;
+}
+
+function feedback(M,c){
+  if(!c.resolved){
+    return c.fb ? `<div class="fb try" role="status">${c.fb}</div>` : '';
+  }
+  const A = (S.stage==='A');
+  const ko = A ? M.a.ko : M.b.ko;
+  const why = A ? M.a.why : M.b.why;
+  const head = c.ok
+    ? `✅ 정답이에요! <span class="pts">+${c.pts}점${c.hint?' (힌트 사용)':''}</span>`
+    : `📝 정답을 확인해 봐요. 다음엔 꼭 맞출 수 있어요!`;
+  const sent = A ? '' :
+    `<div class="fb-sent">${M.b.chunks.map((t,i)=> i===M.b.hi ? `<b class="filled">${t}</b>` : t).join(' ')}</div>`;
+  return `
+    <div class="fb ${c.ok?'ok':'no'}" role="status">
+      <div class="fb-head">${head}</div>
+      ${sent}
+      <div class="fb-ko">${ko}</div>
+      <div class="fb-why">💬 ${why}</div>
+    </div>`;
+}
+
+function tail(M,c){
+  const ko = (S.stage==='A') ? M.a.ko : M.b.ko;
+  let h = '';
+  if(!c.resolved){
+    h += c.hint
+      ? `<div class="hint">💡 우리말 뜻: ${ko}</div>`
+      : `<div class="hintwrap"><button class="btn ghost small" onclick="useHint()">💡 힌트 보기 (점수 절반)</button></div>`;
+  }
+  h += feedback(M,c);
+  if(c.resolved){
+    const label = S.stage==='A' ? '다음 단계 ▶' : (S.m < MISSIONS.length-1 ? '다음 미션 ▶' : '결과 보기 🏆');
+    h += `<div class="actions">
+            <button class="btn ghost tts" onclick="speakSentence()">🔊 문장 듣기</button>
+            <button class="btn" onclick="next()">${label}</button>
+          </div>`;
+  }
+  return h;
+}
+
+function renderResult(){
+  const sc = S.score;
+  const stars = sc>=100 ? 3 : sc>=70 ? 2 : 1;
+  const badge = stars===3 ? ['🌳','Green Leader','초록 리더']
+              : stars===2 ? ['🌿','Eco Helper','환경 도우미']
+                          : ['🌱','Eco Starter','환경 새싹'];
+  const msg = stars===3 ? '프로젝트 대성공! 6개 표현을 아주 잘 사용했어요.'
+            : stars===2 ? '좋아요! 조금만 더 연습하면 완벽해질 거예요.'
+                        : '좋은 시작이에요! 아래 복습 카드를 한 번 더 읽어 봐요.';
+  const miss = [...S.missed].sort((a,b)=>a-b);
+  const review = miss.length
+    ? miss.map(i=>{
+        const M = MISSIONS[i];
+        return `<div class="rv">
+          <div class="rv-top"><b>${M.key}</b><span>${M.meaning}</span>
+            <button class="spk-inline tts" aria-label="예문 듣기" onclick="speakIdx(${i})">🔊</button></div>
+          <div class="rv-ex">${M.example}</div>
+          <div class="rv-ko">${M.exampleKo}</div>
+        </div>`;
+      }).join('')
+    : `<div class="perfect">🎉 처음부터 막힘없이 풀었어요! 복습할 표현이 없어요.</div>`;
+  return `
+    <div class="top"><div class="brand">♻️ Recycling Mission</div><div class="score">Day 30 / 30</div></div>
+    <section class="card res">
+      <div class="stars">${'★'.repeat(stars)}<span class="off">${'★'.repeat(3-stars)}</span></div>
+      <div class="big-score">${sc} <small>/ ${MAX_SCORE}점</small></div>
+      <div class="badge"><span class="b-em">${badge[0]}</span><span>${badge[1]} · ${badge[2]}</span></div>
+      <div class="msg">${msg}</div>
+      <div class="rv-title">📚 다시 보면 좋은 표현</div>
+      ${review}
+      <div class="actions" style="justify-content:center">
+        <button class="btn" onclick="restart()">처음부터 다시 도전 🔁</button>
+      </div>
+    </section>`;
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+initState();
+updateTts();
+if('speechSynthesis' in window){ window.speechSynthesis.onvoiceschanged = updateTts; }
+render();
+</script>
+</body>
+</html>
